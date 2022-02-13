@@ -49,4 +49,4 @@ class YoudaoAPI(object):
         result = self.query(query, from_lang, to_lang)
         if int(result["errorCode"]) != 0:
             return "翻译失败"
-        return "<br>".join(result["basic"]["explains"])
+        return "<br />".join(result["basic"]["explains"])
