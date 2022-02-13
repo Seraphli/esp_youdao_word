@@ -1,0 +1,13 @@
+{
+  "name": "ES Youdao Word",
+  "version": "",
+  "description": "",
+  "init": {
+    "default": [
+      "PYTHON -m pip install -r requirements.txt --disable-pip-version-check"
+    ]
+  },
+  "run": {
+    "default": "PYTHON plugin.py"
+  }
+}
