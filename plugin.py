@@ -45,11 +45,9 @@ class PluginApi(socketio.AsyncClientNamespace):
 
     def on_addElem(self, data):
         print("Add elem:", data)
-        self.elem_count += 1
 
     def on_delElem(self, data):
         print("Remove elem:", data)
-        self.elem_count -= 1
 
     def on_showElem(self, data):
         print("Show view:", data)
@@ -134,10 +132,6 @@ class Plugin(object):
     def save_cfg(self):
         with codecs.open(PLUGIN_SETTING, "w") as f:
             json.dump(self.cfg, f)
-
-    async def wait_for_elem(self):
-        while self.api.elem_count < 2:
-            await asyncio.sleep(0.1)
 
     async def test_case(self):
         await sio.emit("addInputHook", data=("yd"))
