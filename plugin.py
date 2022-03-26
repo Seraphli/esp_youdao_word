@@ -31,50 +31,66 @@ class PluginApi(socketio.AsyncClientNamespace):
     def on_echo(self, data):
         print("Echo:", data)
 
-    def on_register_topic(self, data):
-        print("Register topic:", data)
-
-    def on_add_input_hook(self, data):
+    def on_addInputHook(self, data):
         print("Add input hook:", data)
 
-    def on_del_input_hook(self, data):
+    def on_delInputHook(self, data):
         print("Del input hook:", data)
 
-    def on_insert_css(self, data):
+    def on_insertCSS(self, data):
         print("Insert css:", data)
 
-    def on_remove_css(self, data):
+    def on_removeCSS(self, data):
         print("Remove css:", data)
 
-    def on_update_elem(self, data):
-        print("Update elem:", data)
+    def on_addElem(self, data):
+        print("Add elem:", data)
         self.elem_count += 1
 
-    def on_remove_elem(self, data):
+    def on_delElem(self, data):
         print("Remove elem:", data)
         self.elem_count -= 1
 
-    def on_show_view(self, data):
+    def on_showElem(self, data):
         print("Show view:", data)
 
-    def on_hide_view(self, data):
+    def on_hideElem(self, data):
         print("Hide view:", data)
 
-    def on_exec_js_in_elem(self, data):
+    def on_setBound(self, data):
+        print("Set bound:", data)
+
+    def on_setContent(self, data):
+        print("Set content:", data)
+
+    def on_setOpacity(self, data):
+        print("Set opacity:", data)
+
+    def on_execJSInElem(self, data):
         print("Exec js in elem:", data)
 
     def on_notify(self, data):
         print("Notify:", data)
 
-    def on_update_bound(self, key, _type, bound):
-        print("Update bound:", key, _type, bound)
+    def on_updateBound(self, key, bound):
+        print("Update bound:", key, bound)
 
-    async def on_process_content(self, content):
+    async def on_processContent(self, content):
         print("Process content:", content)
         await self.parent.trans(content)
 
-    def on_mode_flag(self, lock_flag, move_flag, dev_flag):
-        print("Mode flag:", lock_flag, move_flag, dev_flag)
+    def on_modeFlag(self, flags):
+        print("Mode flag:", flags)
+
+    def on_elemRemove(self, key):
+        print("Elem remove:", key)
+        # prevent remove elem
+        return True
+
+    def on_elemRefresh(self, key):
+        print("Elem refresh:", key)
+        # prevent refresh elem
+        return True
 
 
 class Plugin(object):
@@ -90,7 +106,6 @@ class Plugin(object):
         await sio.emit(
             "notify",
             data=(
-                self.ctx,
                 {"text": res, "title": PLUGIN_NAME, "duration": 3000 + len(res) * 100},
             ),
         )
@@ -117,28 +132,21 @@ class Plugin(object):
         with codecs.open(PLUGIN_SETTING, "w") as f:
             json.dump(self.cfg, f)
 
-    async def register(self):
-        # Create a context for registering plugins
-        # You can either use sample password or use complex password
-        # You can also register multiple topic
-        ctx = {"topic": SHORT_NAME, "pwd": str(uuid.uuid4())}
-        await sio.emit("register_topic", ctx)
-        self.ctx = ctx
-
     async def wait_for_elem(self):
         while self.api.elem_count < 2:
             await asyncio.sleep(0.1)
 
     async def test_case(self):
-        await sio.emit("add_input_hook", data=(self.ctx, "yd"))
+        await sio.emit("addInputHook", data=("yd"))
         await sio.emit(
             "notify",
-            data=(self.ctx, {"text": "字典翻译已启动. 翻译结果将通过通知形式显示, 也可以复制到剪贴板中.", "title": PLUGIN_NAME}),
+            data=(
+                {"text": "字典翻译已启动. 翻译结果将通过通知形式显示, 也可以复制到剪贴板中.", "title": PLUGIN_NAME}
+            ),
         )
 
     async def loop(self):
         await sio.connect(f"http://localhost:{self.port}")
-        await self.register()
         await self.test_case()
         await sio.wait()
 
