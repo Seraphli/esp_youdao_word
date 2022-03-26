@@ -75,6 +75,9 @@ class PluginApi(socketio.AsyncClientNamespace):
     def on_updateBound(self, key, bound):
         print("Update bound:", key, bound)
 
+    def on_updateOpacity(self, key, opacity):
+        print("Update opacity:", key, opacity)
+
     async def on_processContent(self, content):
         print("Process content:", content)
         await self.parent.trans(content)
