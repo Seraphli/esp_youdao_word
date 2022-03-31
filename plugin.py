@@ -15,6 +15,14 @@ PLUGIN_SETTING = "plugin.setting.json"
 DEFAULT_CONFIG = {"appid": "", "appkey": "", "clipboard": True}
 
 
+def print_flush(*args, **kwargs):
+    print(*args, **kwargs)
+    sys.stdout.flush()
+
+
+print = print_flush
+
+
 class PluginApi(socketio.AsyncClientNamespace):
     def __init__(self, parent):
         super().__init__()
@@ -158,9 +166,11 @@ if __name__ == "__main__":
             sio.register_namespace(p.api)
             asyncio.run(p.loop())
         except RuntimeError:
-            pass
+            import traceback
+
+            print(traceback.format_exc())
         except:
             import traceback
 
-            traceback.print_exc()
+            print(traceback.format_exc())
             break
