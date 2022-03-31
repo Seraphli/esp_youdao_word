@@ -14,9 +14,11 @@ SHORT_NAME = "ydword"
 PLUGIN_SETTING = "plugin.setting.json"
 DEFAULT_CONFIG = {"appid": "", "appkey": "", "clipboard": True}
 
+o_print = print
+
 
 def print_flush(*args, **kwargs):
-    print(*args, **kwargs)
+    o_print(*args, **kwargs)
     sys.stdout.flush()
 
 
