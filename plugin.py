@@ -34,7 +34,7 @@ class PluginApi(socketio.AsyncClientNamespace):
 
     async def on_connect(self):
         print("Connected")
-        if (self.connected):
+        if self.connected:
             print("Disconnect because already connected")
             asyncio.get_running_loop().stop()
             return
@@ -95,7 +95,8 @@ class PluginApi(socketio.AsyncClientNamespace):
 
     async def on_processContent(self, content):
         print("Process content:", content)
-        await self.parent.trans(content)
+        hook = content.split(" ")[0]
+        await self.parent.hooks[hook](content[len(hook) + 1 :])
 
     def on_modeFlag(self, flags):
         print("Mode flag:", flags)
@@ -118,9 +119,13 @@ class Plugin(object):
             raise Exception(f"Please set appid and appkey in {PLUGIN_SETTING}")
         self.fanyi_api = YoudaoAPI(self.cfg["appid"], self.cfg["appkey"])
         self.api = PluginApi(self)
+        self.hooks = {
+            "yd": lambda x: self.trans(x, "zh-CHN"),
+            "yde": lambda x: self.trans(x, "en"),
+        }
 
-    async def trans(self, content):
-        res = self.fanyi_api.get_basic(content)
+    async def trans(self, content, to_lang):
+        res = self.fanyi_api.get_basic(content, to_lang=to_lang)
         await sio.emit(
             "notify",
             data=(
@@ -152,7 +157,8 @@ class Plugin(object):
 
     async def setup_connect(self):
         print("Setup connect")
-        await sio.emit("addInputHook", data=("yd"))
+        for hook in self.hooks.keys():
+            await sio.emit("addInputHook", data=(hook))
         await sio.emit(
             "notify",
             data=(
