@@ -2,3 +2,5 @@ requests
 python-socketio
 appdirs
 pyperclip
+urllib3==1.25.11
+aiohttp

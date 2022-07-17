@@ -49,4 +49,12 @@ class YoudaoAPI(object):
         result = self.query(query, from_lang, to_lang)
         if int(result["errorCode"]) != 0:
             return "翻译失败"
+        if "basic" not in result:
+            return "找不到该单词"
         return "<br />".join(result["basic"]["explains"])
+
+
+if __name__ == "__main__":
+    print(
+        YoudaoAPI("4c2546f1f370f0ab", "HDy2oDcJV1ghhXIFVwPyzGlATVTwM3Nl").query("serde")
+    )
